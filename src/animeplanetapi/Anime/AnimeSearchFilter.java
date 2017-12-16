@@ -158,6 +158,10 @@ public class AnimeSearchFilter implements SearchFilter {
     
     private String pageFilter = "";
     
+    private boolean isPageRange = false;
+    private int minPage = 0;
+    private int maxPage = 0;
+    
     public AnimeSearchFilter setSortType(SortType type) {
         sortType = "sort=" + getSortType(type);
         setSortOrder(getDefaultSortOrder(type));
@@ -299,6 +303,40 @@ public class AnimeSearchFilter implements SearchFilter {
     
     public AnimeSearchFilter clearPage() {
         pageFilter = "";
+        return this;
+    }
+    
+    
+    
+    public AnimeSearchFilter setPageRange(int min, int max) {
+        isPageRange = true;
+        minPage = min;
+        maxPage = max;
+        return this;
+    }
+
+    @Override
+    public boolean isPageRange() {
+        return isPageRange;
+    }
+
+    @Override
+    public int getMinPage() {
+        return minPage;
+    }
+
+    @Override
+    public int getMaxPage() {
+        return maxPage;
+    }
+    
+    @Override
+    public void setPage(int page) {
+        pageFilter = "page=" + page;
+    }
+    
+    public AnimeSearchFilter clearPageRange() {
+        isPageRange = false;
         return this;
     }
     

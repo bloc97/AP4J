@@ -11,4 +11,9 @@ package animeplanetapi;
  */
 public interface SearchFilter {
     public String getString();
+    
+    public boolean isPageRange();
+    public int getMinPage();
+    public int getMaxPage();
+    public void setPage(int page);
 }

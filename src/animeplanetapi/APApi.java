@@ -9,11 +9,7 @@ import animeplanetapi.Anime.AnimePage;
 import animeplanetapi.Anime.AnimePreview;
 import animeplanetapi.Anime.AnimeSearchFilter;
 import animeplanetapi.Anime.AnimeSearchers;
-import animeplanetapi.Anime.UserAnimeSearchFilter;
-import java.util.LinkedList;
 import java.util.List;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 /**
  *
@@ -32,12 +28,6 @@ public class APApi {
     }
     
     public List<AnimePreview> searchAnime(SearchFilter filter) {
-        return AnimeSearchers.searchAnime(filter);
-    }
-    public List<AnimePreview> searchAnime(AnimeSearchFilter filter) {
-        return AnimeSearchers.searchAnime(filter);
-    }
-    public List<AnimePreview> searchAnime(UserAnimeSearchFilter filter) {
         return AnimeSearchers.searchAnime(filter);
     }
     

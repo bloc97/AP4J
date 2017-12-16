@@ -19,10 +19,10 @@ import java.util.List;
 public class UserAnimeSearchFilter implements SearchFilter {
     
     
-    public static enum FilterType {
+    public static enum StatusType {
         ALL, WATCHED, WATCHING, WANT_TO_WATCH, STALLED, DROPPED, WONT_WATCH
     }
-    private static String getFilterType(FilterType type) {
+    private static String getStatusType(StatusType type) {
         switch (type) {
             case ALL:
                 return "";
@@ -40,6 +40,24 @@ public class UserAnimeSearchFilter implements SearchFilter {
                 return "/wontwatch";
             default:
                 return "";
+        }
+    }
+    public static StatusType getStatusType(String statusType) {
+        switch (statusType) {
+            case "status1":
+                return StatusType.WATCHED;
+            case "status2":
+                return StatusType.WATCHING;
+            case "status3":
+                return StatusType.DROPPED;
+            case "status4":
+                return StatusType.WANT_TO_WATCH;
+            case "status5":
+                return StatusType.STALLED;
+            case "status6":
+                return StatusType.WONT_WATCH;
+            default:
+                return StatusType.ALL;
         }
     }
     
@@ -190,13 +208,21 @@ public class UserAnimeSearchFilter implements SearchFilter {
     
     private String pageFilter = "";
     
+    private boolean isPageRange = false;
+    private int minPage = 0;
+    private int maxPage = 0;
+    
     public UserAnimeSearchFilter(String userName) {
         this.userName = userName;
     }
     
     
-    public UserAnimeSearchFilter setFilterType(FilterType type) {
-        filterType = getFilterType(type);
+    public UserAnimeSearchFilter setStatusType(StatusType type) {
+        filterType = getStatusType(type);
+        return this;
+    }
+    public UserAnimeSearchFilter clearStatusType() {
+        filterType = "";
         return this;
     }
     
@@ -342,6 +368,38 @@ public class UserAnimeSearchFilter implements SearchFilter {
     
     public UserAnimeSearchFilter clearPage() {
         pageFilter = "";
+        return this;
+    }
+    
+    public UserAnimeSearchFilter setPageRange(int min, int max) {
+        isPageRange = true;
+        minPage = min;
+        maxPage = max;
+        return this;
+    }
+
+    @Override
+    public boolean isPageRange() {
+        return isPageRange;
+    }
+
+    @Override
+    public int getMinPage() {
+        return minPage;
+    }
+
+    @Override
+    public int getMaxPage() {
+        return maxPage;
+    }
+    
+    @Override
+    public void setPage(int page) {
+        pageFilter = "page=" + page;
+    }
+    
+    public UserAnimeSearchFilter clearPageRange() {
+        isPageRange = false;
         return this;
     }
     

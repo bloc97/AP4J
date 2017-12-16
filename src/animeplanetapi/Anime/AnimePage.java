@@ -6,6 +6,7 @@
 package animeplanetapi.Anime;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -15,14 +16,15 @@ import java.util.List;
 public class AnimePage extends AnimePreview {
     private final String minutesPerEpisode, studioUrl, beginYearUrl, endYearUrl, season, seasonUrl, ratingCount, rank;
     private final AnimeUserStats userStats;
+    private final List<AnimePreview> recommendedList;
     
     public AnimePage() {
-        this(-1, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", new AnimeUserStats(0, 0, 0, 0, 0, 0), "", "", Arrays.asList(new String[] {"None"}), "");
+        this(-1, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", new AnimeUserStats(0, 0, 0, 0, 0, 0), "", "", Arrays.asList(new String[] {"None"}), "", new LinkedList<>());
     }
     
     public AnimePage(int id, String url, String title, String altTitle, String type, String episodes, String minutesPerEpisode, String studio, String studioUrl,
             String beginYear, String endYear, String beginYearUrl, String endYearUrl, String season, String seasonUrl, 
-            String rating, String ratingCount, String rank, AnimeUserStats userStats, String description, String source, List<String> tags, String thumbnailUrl) {
+            String rating, String ratingCount, String rank, AnimeUserStats userStats, String description, String source, List<String> tags, String thumbnailUrl, List<AnimePreview> recommendedList) {
         super(id, url, title, altTitle, type, episodes, studio, beginYear, endYear, rating, description, source, tags, thumbnailUrl);
         
         this.minutesPerEpisode = minutesPerEpisode;
@@ -34,6 +36,7 @@ public class AnimePage extends AnimePreview {
         this.ratingCount = ratingCount;
         this.rank = rank;
         this.userStats = userStats;
+        this.recommendedList = recommendedList;
     }
     
     public boolean hasMinutesPerEpisode() {
@@ -88,6 +91,10 @@ public class AnimePage extends AnimePreview {
 
     public AnimeUserStats getUserStats() {
         return userStats;
+    }
+
+    public List<AnimePreview> getRecommendedList() {
+        return recommendedList;
     }
     
     

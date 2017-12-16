@@ -15,6 +15,7 @@ import animeplanetapi.Parsers;
 import animeplanetapi.SearchFilter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -35,19 +36,45 @@ public abstract class AnimeSearchers {
     
     
     public static List<AnimePreview> searchAnime(SearchFilter filter) {
-        List<AnimePreview> animePreviewList = new LinkedList();
+        List<AnimePreview> animePreviewList = new LinkedList<>();
         
         try {
             
-            Document mainDoc = Jsoup.connect(APApi.MAINURL + filter.getString()).get();
-            
-            
-            if (isDocumentFullAnimePage(mainDoc)) {
-                animePreviewList.add(fetchFullAnimeFromPage(mainDoc));
+            if (filter.isPageRange()) search: {
+                HashSet<AnimePreview> animePreviewSet = new HashSet<>();
+                for (int i=Math.max(filter.getMinPage(), 1); i<=filter.getMaxPage(); i++) {
+                    filter.setPage(i);
+                    Document mainDoc = Jsoup.connect(APApi.MAINURL + filter.getString()).get();
+                    
+                    
+                    if (isDocumentFullAnimePage(mainDoc)) {
+                        animePreviewList.add(fetchFullAnimeFromPage(mainDoc));
+                        break;
+                    } else {
+                        List<AnimePreview> currentAnimePreviewList = fetchAnimesFromListPage(mainDoc);
+                        
+                        for (AnimePreview preview : currentAnimePreviewList) {
+                            if (animePreviewSet.contains(preview)) {
+                                break search;
+                            } else {
+                                animePreviewList.add(preview);
+                                animePreviewSet.add(preview);
+                            }
+                        }
+                        
+                    }
+                    
+                    
+                }
             } else {
-                animePreviewList = fetchAnimesFromListPage(mainDoc);
-            }
+                Document mainDoc = Jsoup.connect(APApi.MAINURL + filter.getString()).get();
             
+                if (isDocumentFullAnimePage(mainDoc)) {
+                    animePreviewList.add(fetchFullAnimeFromPage(mainDoc));
+                } else {
+                    animePreviewList = fetchAnimesFromListPage(mainDoc);
+                }
+            }
         } catch (Exception ex) {
         }
         return animePreviewList;
@@ -61,6 +88,7 @@ public abstract class AnimeSearchers {
             return fetchFullAnimeFromPage(mainDoc);
             
         } catch (Exception ex) {
+            ex.printStackTrace();
         }
         
         return new AnimePage();
@@ -173,7 +201,7 @@ public abstract class AnimeSearchers {
         Element descriptionElement = mainDoc.body().getElementsByAttributeValue("itemprop", "description").first();
         
         
-        String idString = descriptionElement.parent().parent().parent().getElementsByAttributeValue("data-mode", "anime").attr("data-id");
+        String idString = mainDoc.body().getElementsByAttributeValue("data-mode", "anime").attr("data-id");
         
         int id;
         try {
@@ -183,8 +211,13 @@ public abstract class AnimeSearchers {
         }
         
         String url = mainDoc.head().getElementsByAttributeValue("rel", "canonical").attr("href");
+        String desc = "N/A";
         
-        String desc = descriptionElement.text();
+        try {
+            desc = descriptionElement.text();
+        } catch (Exception ex) {
+        }
+        
         String source = "N/A";
         try {
             source = descriptionElement.parent().getElementsByClass("notes").first().text().substring(8);
@@ -219,12 +252,19 @@ public abstract class AnimeSearchers {
         AnimeUserStats userStats = new AnimeUserStats(intUserStats[0], intUserStats[1], intUserStats[2], intUserStats[3], intUserStats[4], intUserStats[5]);
         
         
+        List<AnimePreview> recommendationList = new LinkedList<>();
         
-        return new AnimePage(id, url, title, altTitle, type, episodes, minutesPerEpisode, studio, studioUrl, beginYear, endYear, beginYearUrl, endYearUrl, season, seasonUrl, rating, ratingCount, rank, userStats, desc, source, tags, thumbUrl);
+        try {
+           recommendationList = fetchAnimesFromListPage(mainDoc);
+        } catch (Exception ex) {
+            
+        }
+        
+        return new AnimePage(id, url, title, altTitle, type, episodes, minutesPerEpisode, studio, studioUrl, beginYear, endYear, beginYearUrl, endYearUrl, season, seasonUrl, rating, ratingCount, rank, userStats, desc, source, tags, thumbUrl, recommendationList);
     }
     
     private static List<AnimePreview> fetchAnimesFromListPage(Document mainDoc) {
-        LinkedList<AnimePreview> animePreviewList = new LinkedList();
+        LinkedList<AnimePreview> animePreviewList = new LinkedList<>();
 
         //Elements elements = doc.body().getElementsByAttributeValue("data-type", "anime");
         Elements foundList = mainDoc.body().getElementsByAttributeValue("data-type", "anime").first().getElementsByTag("li");
@@ -262,9 +302,8 @@ public abstract class AnimeSearchers {
                studio = "N/A",
                beginYear = "", endYear = "",
                rating = "N/A";
-
-        boolean foundStudio = false;
-
+        
+        
         Elements entryBarElements = animePreviewDoc.body().getElementsByClass("entryBar").first().getElementsByTag("li");
 
         for (Element headerElement : entryBarElements) {
@@ -310,7 +349,21 @@ public abstract class AnimeSearchers {
         }
         
         String thumbUrl = APApi.MAINURL + animeListElement.getElementsByTag("img").first().attributes().get("data-src");
-        return new AnimePreview(id, url, title, altTitle, type, episodes, studio, beginYear, endYear, rating, desc, source, tags, thumbUrl);
+        
+        
+        String userRating = "N/A";
+        UserAnimeSearchFilter.StatusType userStatus = UserAnimeSearchFilter.StatusType.ALL;
+        
+        try {
+            userRating = animeListElement.getElementsByClass("ttRating").first().text();
+            String statusType = animeListElement.getElementsByClass("statusArea").first().getElementsByTag("span").attr("class");
+            userStatus = UserAnimeSearchFilter.getStatusType(statusType);
+        } catch (Exception e) {
+            
+        }
+        
+        
+        return new AnimePreview(id, url, title, altTitle, type, episodes, studio, beginYear, endYear, rating, userRating, userStatus, desc, source, tags, thumbUrl);
     }
     
     

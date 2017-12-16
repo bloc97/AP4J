@@ -5,6 +5,8 @@
  */
 package animeplanetapi;
 
+import java.util.Objects;
+
 /**
  *
  * @author bowen
@@ -33,4 +35,24 @@ public class Tag {
     public String toString() {
         return "(" + id + ") " + name;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Tag) {
+            Tag tag = (Tag) obj;
+            if (getId() == tag.getId()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 53 * hash + Objects.hashCode(this.id);
+        return hash;
+    }
+    
+    
 }
