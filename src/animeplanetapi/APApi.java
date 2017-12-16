@@ -32,7 +32,11 @@ public class APApi {
     }
     
     public AnimePage fetchAnimePage(AnimePreview preview) {
-        return AnimeSearchers.fetchAnimePage(preview);
+        if (preview instanceof AnimePage) {
+            return (AnimePage) preview;
+        } else {
+            return AnimeSearchers.fetchAnimePage(preview);
+        }
     }
     
     
