@@ -56,3 +56,25 @@ ERASED
 Your lie in April
 The Girl Who Leapt Through Time
 ```
+
+There are currently two search filters:  
+`AnimeSearchFilter` which searches through all anime  
+`UserAnimeSearchFilter` which searches through an user's anime list  
+
+
+Some other search examples:  
+
+```java
+    AnimeSearchFilter filter = new AnimeSearchFilter();
+    filter.setName("kimi");
+    filter.setStudio("comix");
+    filter.addType(AnimeSearchFilter.Type.MOVIE);
+    List<AnimePreview> list = api.searchAnime(filter);
+
+    UserAnimeSearchFilter userFilter = new UserAnimeSearchFilter("sothis");
+    userFilter.setStatusType(UserAnimeSearchFilter.StatusType.WATCHED);
+    userFilter.addTag("scifi");
+    userFilter.setSortType(UserAnimeSearchFilter.SortType.RATING);
+    userFilter.setSortOrder(UserAnimeSearchFilter.SortOrder.DESCENDING);
+    List<AnimePreview> userWatchedList = api.searchAnime(userFilter);
+```
